@@ -49,59 +49,29 @@ END {
 ' metadata/PRJEB6180_ENA_runs.tsv \
 } > metadata/PRJEB6180_sample_summary_from_runs.tsvoheader.tsvtific_name\tinstrument_platform\tinstrument_model\tn_runs\ttotal_reads\ttotal_bases"
 ```
-## Test with 10 sample
+## Test with 10 samples
 ```bash
-awk -F'\t' '
-NR==1 {
-  for (i=1; i<=NF; i++) col[$i]=i
-  print "sample_id,run_accession"
-  next
-}
-{
-  sample=$col["sample_accession"]
-  run=$col["run_accession"]
-  layout=$col["library_layout"]
-  fastq=$col["fastq_ftp"]
-
-  if (layout=="PAIRED" && fastq!="") {
-    if (!(sample in seen)) {
-      seen[sample]=1
-      n++
-      print "rice_"n","run
-    }
-  }
-
-  if (n==10) exit
-}
-' metadata/PRJEB6180_ENA_runs.tsv > metadata/test_10_sra_index.csv
+shuf -n 10 PRJEB6180_ENA_runs.tsv > test_10_sample_accessions.tsv
 ```
-## create a descriptive table
+### Start the pipeline
 ```bash
-awk -F'\t' '
-NR==1 {
-  for (i=1; i<=NF; i++) col[$i]=i
-  print "sample_id\tsample_accession\tsecondary_sample_accession\trun_accession\tread_count\tbase_count\tinstrument_model"
-  next
-}
-{
-  sample=$col["sample_accession"]
-  secondary=$col["secondary_sample_accession"]
-  run=$col["run_accession"]
-  reads=$col["read_count"]
-  bases=$col["base_count"]
-  model=$col["instrument_model"]
-  layout=$col["library_layout"]
-  fastq=$col["fastq_ftp"]
-
-  if (layout=="PAIRED" && fastq!="") {
-    if (!(sample in seen)) {
-      seen[sample]=1
-      n++
-      print "rice_"n"\t"sample"\t"secondary"\t"run"\t"reads"\t"bases"\t"model
-    }
-  }
-
-  if (n==10) exit
-}
-' metadata/PRJEB6180_ENA_runs.tsv > metadata/test_10_samples_description.tsv
+cat << 'EOF' > run_pipeline.sh
+NCBI_API_KEY= #your key
+REF="/data/alexis/rice_project/genome_ref_rice.fasta"
+head $REF
+SRA="/data/alexis/rice_project/metadata/test_10_sample_accessions.txt"
+head $SRA
+module load genomepanel-nf
+nextflow run /data/alexis/genomepanel_nf/main.nf \
+	-profile slurm -work-dir '/scratch/nf_tmp_alexis' \
+	--outdir '/data/alexis/rice_project/metadata' \
+	--NCBI_API_key "$NCBI_API_KEY" \
+	--reference $REF \
+	--SRA_index $SRA \
+	--ploidy 2 \
+	--slurm_queue normal.168h
+EOF
+```
+```bash
+bash run_pipeline.sh
 ```
