@@ -93,7 +93,7 @@ bash run_pipeline_test.sh
 ```
 ## the full pipeline
 ```bash
-cat << 'EOF' > run_pipeline_test.sh
+cat << 'EOF' > run_pipeline.sh
 NCBI_API_KEY= #your key
 REF= "rice_project/genome_ref_rice_NCBI.fasta"
 head $REF
@@ -108,4 +108,7 @@ nextflow run /data/alexis/genomepanel_nf/main.nf \
 	--SRA_index $SRA \
 	--ploidy 2 \
 	--slurm_queue normal.168h
+```
+```bash
+bash run_pipeline.sh
 ```
