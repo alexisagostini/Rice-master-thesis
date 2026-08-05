@@ -68,7 +68,7 @@ shuf -n 10 PRJEB6180_ENA_runs.tsv > test_10_sample_accessions.tsv
 ```bash
 cat << 'EOF' > run_pipeline.sh
 NCBI_API_KEY= #your key
-REF="/data/alexis/rice_project/genome_ref_rice.fasta"
+REF="/data/alexis/rice_project/genome_ref_rice_NCBI.fasta"
 head $REF
 SRA="/data/alexis/rice_project/metadata/test_10_sample_accessions.txt"
 head $SRA
