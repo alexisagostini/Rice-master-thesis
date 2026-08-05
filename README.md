@@ -57,8 +57,13 @@ END {
     print s,sec[s],species[s],instr_platform[s],instr_model[s],n_runs[s],reads[s],bases[s]
   }
 }
-' metadata/PRJEB6180_ENA_runs.tsv \
-} > metadata/PRJEB6180_sample_summary_from_runs.tsvoheader.tsvtific_name\tinstrument_platform\tinstrument_model\tn_runs\ttotal_reads\ttotal_bases"
+' PRJEB6180_ENA_runs.tsv \
+} > PRJEB6180_sample_summary_from_runs.tsvoheader.tsvtific_name\tinstrument_platform\tinstrument_model\tn_runs\ttotal_reads\ttotal_bases"
+```
+## duplacte verification 
+```bash
+sort PRJEB6180_ENA_runs.tsv | uniq -d
+cut -f1 PRJEB6180_ENA_runs.tsv | sort | uniq -c | sort -rn | awk '$1 > 1'
 ```
 ## Test with 10 samples
 ```bash
@@ -66,16 +71,16 @@ shuf -n 10 PRJEB6180_ENA_runs.tsv > test_10_sample_accessions.tsv
 ```
 ### Start the pipeline
 ```bash
-cat << 'EOF' > run_pipeline.sh
+cat << 'EOF' > run_pipeline_test.sh
 NCBI_API_KEY= #your key
-REF="/data/alexis/rice_project/genome_ref_rice_NCBI.fasta"
+REF= "rice_project/genome_ref_rice_NCBI.fasta"
 head $REF
-SRA="/data/alexis/rice_project/metadata/test_10_sample_accessions.txt"
+SRA="rice_project/test_10_sample_accessions.tsv"
 head $SRA
 module load genomepanel-nf
 nextflow run /data/alexis/genomepanel_nf/main.nf \
 	-profile slurm -work-dir '/scratch/nf_tmp_alexis' \
-	--outdir '/data/alexis/rice_project/metadata' \
+	--outdir '/data/alexis/rice_project/metadata/test_10_individus' \
 	--NCBI_API_key "$NCBI_API_KEY" \
 	--reference $REF \
 	--SRA_index $SRA \
@@ -84,5 +89,23 @@ nextflow run /data/alexis/genomepanel_nf/main.nf \
 EOF
 ```
 ```bash
-bash run_pipeline.sh
+bash run_pipeline_test.sh
+```
+## the full pipeline
+```bash
+cat << 'EOF' > run_pipeline_test.sh
+NCBI_API_KEY= #your key
+REF= "rice_project/genome_ref_rice_NCBI.fasta"
+head $REF
+SRA="rice_project/PRJEB6180_ENA_runs.tsv"
+head $SRA
+module load genomepanel-nf
+nextflow run /data/alexis/genomepanel_nf/main.nf \
+	-profile slurm -work-dir '/scratch/nf_tmp_alexis' \
+	--outdir '/data/alexis/rice_project/metadata/test_10_individus' \
+	--NCBI_API_key "$NCBI_API_KEY" \
+	--reference $REF \
+	--SRA_index $SRA \
+	--ploidy 2 \
+	--slurm_queue normal.168h
 ```
