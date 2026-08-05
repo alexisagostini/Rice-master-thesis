@@ -17,6 +17,12 @@ echo "https://academic.oup.com/gigascience/article/3/1/2047-217X-3-7/2682915" > 
 echo "https://www.nature.com/articles/s41586-018-0063-9" >> metadata/3k_rice_papers.txt # Paper Nature 2018
 echo "https://snp-seek.irri.org/" >> metadata/3k_rice_papers.txt # SNP-seek
 ```
+## Download of the reference's genome
+```bash
+datasets download genome accession GCF_001433935.1 --include genome
+unzip ncbi_dataset.zip
+cp ncbi_dataset/data/GCF_001433935.1/GCF_001433935.1_IRGSP-1.0_genomic.fna /data/alexis/rice_project/genome_ref_rice_NCBI.fasta
+```
 ## Recuperation of metadata ENA
 ```bash
 curl -L "https://www.ebi.ac.uk/ena/portal/api/filereport?accession=PRJEB6180&result=sample&fields=sample_accession,secondary_sample_accession,sample_alias,scientific_name,tax_id,description,collection_date,country,location,first_public,last_updated&format=tsv" \
