@@ -1,5 +1,10 @@
 # Rice-master-thesis
 
+## Conda
+```bash
+conda install -c conda-forge ncbi-datasets-cli
+```
+
 ## creation of a depository
 
 ```bash
