@@ -68,6 +68,8 @@ cut -f1 PRJEB6180_ENA_runs.tsv | sort | uniq -c | sort -rn | awk '$1 > 1'
 ## Test with 10 samples
 ```bash
 shuf -n 10 PRJEB6180_ENA_runs.tsv > test_10_sample_accessions.tsv
+awk -F'\t' 'NR==FNR {samples[$1]; next} FNR==1{next} $2 in samples {print $1"\t"$2}' \
+    test_10_sample_accessions.txt PRJEB6180_ENA_runs.tsv > SRR_sample_map.tsv
 ```
 ### Start the pipeline
 ```bash
@@ -77,6 +79,8 @@ REF= "rice_project/genome_ref_rice_NCBI.fasta"
 head $REF
 SRA="rice_project/test_10_sample_accessions.tsv"
 head $SRA
+SRR_SAMPLE_MAP="rice_project/SRR_sample_map.tsv"
+head $SRR_SAMPLE_MAP
 module load genomepanel-nf
 nextflow run /data/alexis/genomepanel_nf/main.nf \
 	-profile slurm -work-dir '/scratch/nf_tmp_alexis' \
@@ -84,6 +88,7 @@ nextflow run /data/alexis/genomepanel_nf/main.nf \
 	--NCBI_API_key "$NCBI_API_KEY" \
 	--reference $REF \
 	--SRA_index $SRA \
+	--SRR_sample_map $SRR_SAMPLE_MAP \
 	--ploidy 2 \
 	--slurm_queue normal.168h
 EOF
@@ -106,7 +111,6 @@ bcftools stats final_variants.clean.vcf.gz > stats.txt
 grep "ts/tv" stats.txt #ts/tv seuil ~2.33 https://doi.org/10.1038/nature03895
 
 ```
-
 
 ## the full pipeline
 ```bash
