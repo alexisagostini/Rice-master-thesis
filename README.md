@@ -91,6 +91,21 @@ EOF
 ```bash
 bash run_pipeline_test.sh
 ```
+### Verification
+verification if echecs append
+```bash
+grep -iE "failed|error|terminated" pipeline_trace.txt
+```
+Verification of the quality
+```bash
+column -t fastp_summary.tsv | less -S # % conservate and reads quality
+```
+Verification of in intern quality of variants
+```bash
+bcftools stats final_variants.clean.vcf.gz > stats.txt
+grep "ts/tv" stats.txt #ts/tv 
+
+
 ## the full pipeline
 ```bash
 cat << 'EOF' > run_pipeline.sh
